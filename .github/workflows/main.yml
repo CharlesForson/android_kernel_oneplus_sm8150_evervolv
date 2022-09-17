@@ -1,0 +1,29 @@
+name: Build_Evervolv
+
+on:
+  push:
+    branches: [ "t-13.0" ]
+  workflow_dispatch:
+jobs:
+  build: 
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout kernel source
+      uses: actions/checkout@v2
+
+    - name: "Android kernel build"
+      uses: lemniskett/android-kernel-actions@master
+      id: build
+      env:
+        NAME: ${{ steps.vars.outputs.release_name }}
+      with:
+        arch: arm64
+        compiler: proton-clang/master/binutils
+        defconfig: vendor/sm8150_defconfig
+        image: Image.gz-dtb
+
+    - name: Release build
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: ${{ steps.build.outputs.outfile }}
+        token: 
